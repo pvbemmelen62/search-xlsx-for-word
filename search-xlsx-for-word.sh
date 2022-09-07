@@ -3,8 +3,8 @@
 CMDNAME=$(basename $0)
 USAGE="Usage: $CMDNAME --word <word> <file> [<file> ...]
 
-Copies each file into a tmp/<file>.jar,
-changes dir into tmp, extracts <file>.jar, and then searches xl/sharedStrings.xml .
+Copies each file into a tmp/excel.jar,
+changes dir into tmp, extracts excel.jar, and then searches xl/sharedStrings.xml .
 Afterwards changes one dir up, and deletes subdir tmp ."
 
 if [ $# -le 2 ]; then
@@ -29,16 +29,20 @@ if [[ -f tmp || -d tmp ]] ; then
 fi
 
 for i in "$@" ; do
-  echo "$i"
+  # echo "$i"
   if [ ! -f "$i" ]; then
     echo "$i" does not exist: skipping.
     continue
   fi
   mkdir tmp
-  cp "$i" tmp/"$i".jar
+  cp "$i" tmp/excel.jar
   cd tmp > /dev/null
-  jar xvf "$i".jar > /dev/null
-  cat xl/sharedStrings.xml | xmllint --format - | grep $word
+  jar xvf excel.jar > /dev/null
+  lines=`cat xl/sharedStrings.xml | xmllint --format - | grep $word`
+  if [ "" != "$lines" ] ; then
+    echo "$i"
+    echo "$lines"
+  fi
   cd .. > /dev/null
   rm -rf tmp
 done
